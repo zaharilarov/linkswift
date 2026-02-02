@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LinkSwift | Modern URL Shortener</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent: #22d3ee;
+            --success: #10b981;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem 1rem;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            background: linear-gradient(to right, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        p.subtitle {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        .card {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 1.5rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 2rem;
+            transition: transform 0.3s ease;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            background: #0f172a;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 1rem;
+            outline: none;
+            font-size: 1rem;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2);
+        }
+
+        button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        button:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        #result-area {
+            display: none;
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: rgba(99, 102, 241, 0.1);
+            border-radius: 1rem;
+            border: 1px dashed var(--primary);
+            animation: fadeInUp 0.5s ease-out;
+        }
+
+        .result-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+
+        .short-url {
+            color: var(--accent);
+            font-weight: 600;
+            text-decoration: none;
+            font-size: 1.2rem;
+            word-break: break-all;
+        }
+
+        .copy-btn {
+            background: var(--success);
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+        }
+
+        .copy-btn:hover {
+            background: #059669;
+            box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.4);
+        }
+
+        .recent-section {
+            margin-top: 4rem;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .links-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 0.75rem;
+        }
+
+        .links-table th {
+            text-align: left;
+            padding: 0.5rem 1rem;
+            color: var(--text-muted);
+            font-weight: 400;
+            font-size: 0.9rem;
+        }
+
+        .links-table tr {
+            background: var(--card-bg);
+            transition: transform 0.2s ease;
+        }
+
+        .links-table tr:hover {
+            transform: scale(1.01);
+        }
+
+        .links-table td {
+            padding: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-style: solid none;
+        }
+
+        .links-table td:first-child {
+            border-left-style: solid;
+            border-top-left-radius: 1rem;
+            border-bottom-left-radius: 1rem;
+        }
+
+        .links-table td:last-child {
+            border-right-style: solid;
+            border-top-right-radius: 1rem;
+            border-bottom-right-radius: 1rem;
+            text-align: center;
+        }
+
+        .original-url {
+            max-width: 300px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            color: var(--text-muted);
+        }
+
+        .clicks-badge {
+            background: rgba(34, 211, 238, 0.1);
+            color: var(--accent);
+            padding: 0.25rem 0.75rem;
+            border-radius: 2rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .loader {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #FFF;
+            border-bottom-color: transparent;
+            border-radius: 50%;
+            display: inline-block;
+            box-sizing: border-box;
+            animation: rotation 1s linear infinite;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        @keyframes rotation {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: var(--success);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+            transform: translateY(100px);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .toast.show {
+            transform: translateY(0);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>LinkSwift</h1>
+            <p class="subtitle">Fast, secure, and beautiful URL shortening</p>
+        </header>
+
+        <div class="card">
+            <div class="input-group">
+                <input type="text" id="url-input" placeholder="Paste your long link here (e.g. google.com)" required>
+                <button id="shorten-btn">
+                    <span id="btn-text">Shorten</span>
+                </button>
+            </div>
+
+            <div id="result-area">
+                <p style="margin-bottom: 0.5rem; color: var(--text-muted); font-size: 0.9rem;">Your short link is ready:
+                </p>
+                <div class="result-content">
+                    <a href="#" id="short-url" class="short-url" target="_blank"></a>
+                    <button class="copy-btn" id="copy-btn">Copy</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="recent-section">
+            <h2>Recent Links</h2>
+            <table class="links-table">
+                <thead>
+                    <tr>
+                        <th>Destination</th>
+                        <th>Short Code</th>
+                        <th>Clicks</th>
+                    </tr>
+                </thead>
+                <tbody id="recent-links-body">
+                    <!-- Links will be injected here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="toast" class="toast">Copied to clipboard!</div>
+
+    <script>
+        const urlInput = document.getElementById('url-input');
+        const shortenBtn = document.getElementById('shorten-btn');
+        const btnText = document.getElementById('btn-text');
+        const resultArea = document.getElementById('result-area');
+        const shortUrlLink = document.getElementById('short-url');
+        const copyBtn = document.getElementById('copy-btn');
+        const recentBody = document.getElementById('recent-links-body');
+        const toast = document.getElementById('toast');
+
+        async function fetchRecent() {
+            try {
+                const response = await fetch('/recent');
+                const links = await response.json();
+                recentBody.innerHTML = '';
+
+                if (links.length === 0) {
+                    recentBody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: var(--text-muted);">No links yet. Start shortening!</td></tr>';
+                    return;
+                }
+
+                links.forEach(link => {
+                    const row = document.createElement('tr');
+                    const fullShort = window.location.origin + '/' + link.short_code;
+                    row.innerHTML = `
+                        <td><div class="original-url">${link.original_url}</div></td>
+                        <td><a href="${fullShort}" target="_blank" style="color: var(--primary); text-decoration: none;">${link.short_code}</a></td>
+                        <td><span class="clicks-badge">${link.click_count}</span></td>
+                    `;
+                    recentBody.appendChild(row);
+                });
+            } catch (err) {
+                console.error('Failed to fetch recent links:', err);
+            }
+        }
+
+        shortenBtn.addEventListener('click', async () => {
+            const url = urlInput.value.trim();
+            if (!url) return;
+
+            // UI Feedback
+            shortenBtn.disabled = true;
+            btnText.innerHTML = '<span class="loader"></span>Processing...';
+
+            try {
+                const response = await fetch('/shorten', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    shortUrlLink.href = data.short_url;
+                    shortUrlLink.textContent = data.short_url;
+                    resultArea.style.display = 'block';
+                    urlInput.value = '';
+                    fetchRecent();
+                } else {
+                    const err = await response.json();
+                    alert('Error: ' + (err.detail || 'Failed to shorten URL'));
+                }
+            } catch (err) {
+                alert('Network error. Is the server running?');
+            } finally {
+                shortenBtn.disabled = false;
+                btnText.textContent = 'Shorten';
+            }
+        });
+
+        copyBtn.addEventListener('click', () => {
+            navigator.clipboard.writeText(shortUrlLink.textContent);
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2000);
+        });
+
+        // Initial Load
+        fetchRecent();
+    </script>
+</body>
+
+</html>
