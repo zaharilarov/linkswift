@@ -1,13 +1,13 @@
-# Project Context: LinkSwift Deployment
+# Project Context: LinkSwift Deployment (Ephemeral)
 
 ## 1. Goal
-Deploy the URL Shortener (LinkSwift) to Render.com with persistent storage.
+Deploy LinkSwift to Render.com using the 100% Free Tier (No Credit Card).
 
-## 2. Infrastructure Requirements
-- **Hosting:** Render.com (Web Service).
-- **Storage:** Render Persistent Disk (1GB) for SQLite.
-- **Repository:** GitHub.
+## 2. Technical Stack
+- Backend: FastAPI.
+- Database: SQLite (Local/Ephemeral).
+- Hosting: Render Free Web Service.
 
-## 3. Final Adjustments
-- Database path must support `/data/` mount point for production.
-- Environment variables for Port handling ($PORT).
+## 3. Deployment Constraints
+- Storage: No persistent disk.
+- Persistence: Data resets on every server restart or redeploy.

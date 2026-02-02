@@ -4,11 +4,20 @@ from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 import sqlite3
 import logging
+from init_db import init_db
 from database import get_db_connection
 from service import shorten_url
 
 app = FastAPI(title="URL Shortener")
 templates = Jinja2Templates(directory="templates")
+
+@app.on_event("startup")
+def startup_event():
+    """
+    Ensures the database is initialized on server start.
+    Crucial for ephemeral environments like Render Free Tier.
+    """
+    init_db()
 
 class URLRequest(BaseModel):
     url: str

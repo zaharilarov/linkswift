@@ -1,12 +1,7 @@
-import os
 import sqlite3
 import logging
 
-# Render persistence: use /data/shortener.db if /data exists, otherwise local
-if os.path.exists("/data"):
-    DB_NAME = "/data/shortener.db"
-else:
-    DB_NAME = "shortener.db"
+DB_NAME = "shortener.db"
 
 def get_db_connection() -> sqlite3.Connection | None:
     """
