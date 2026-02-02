@@ -58,15 +58,17 @@ async def get_recent_links():
         conn.close()
 
 @app.post("/shorten", status_code=201)
-async def create_short_url(request: URLRequest):
+async def create_short_url(request: Request, url_req: URLRequest):
     """
     Creates a short code for the given original URL.
+    Uses the request's base URL to return a fully qualified link.
     """
-    code = shorten_url(request.url)
+    code = shorten_url(url_req.url)
     if not code:
         raise HTTPException(status_code=400, detail="Failed to shorten URL. Please check the URL format.")
     
-    return {"short_url": f"http://localhost:8000/{code}"}
+    base_url = str(request.base_url)
+    return {"short_url": f"{base_url}{code}"}
 
 @app.get("/{short_code}")
 async def redirect_to_original(short_code: str, request: Request):
